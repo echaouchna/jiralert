@@ -71,6 +71,20 @@ func resolveFilepaths(baseDir string, cfg *Config) {
 	cfg.Template = join(cfg.Template)
 }
 
+// StringArray string array
+type StringArray []string
+
+func (array StringArray) contains(value string) bool {
+	if array != nil {
+		for _, element := range array {
+			if element == value {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 // ReceiverConfig is the configuration for one receiver. It has a unique name and includes API access fields (URL, user
 // and password) and issue fields (required -- e.g. project, issue type -- and optional -- e.g. priority).
 type ReceiverConfig struct {
@@ -95,7 +109,8 @@ type ReceiverConfig struct {
 	Components        []string               `yaml:"components" json:"components"`
 
 	// Label copy settings
-	AddGroupLabels bool `yaml:"add_group_labels" json:"add_group_labels"`
+	AddGroupLabels bool        `yaml:"add_group_labels" json:"add_group_labels"`
+	IgnoreFields   StringArray `yaml:"ignore_fields" json:"ignore_fields"`
 
 	// Catches all undefined fields and must be empty after parsing.
 	XXX map[string]interface{} `yaml:",inline" json:"-"`

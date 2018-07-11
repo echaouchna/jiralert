@@ -67,15 +67,19 @@ func (r *Receiver) Notify(data *alertmanager.Data) (bool, error) {
 	log.Infof("No issue matching %s found, creating new issue", issueLabel)
 	issue = &jira.Issue{
 		Fields: &jira.IssueFields{
-			Project:     jira.Project{Key: project},
-			Type:        jira.IssueType{Name: r.tmpl.Execute(r.conf.IssueType, data)},
-			Description: r.tmpl.Execute(r.conf.Description, data),
-			Summary:     r.tmpl.Execute(r.conf.Summary, data),
-			Labels: []string{
-				issueLabel,
-			},
+			Project:  jira.Project{Key: project},
+			Type:     jira.IssueType{Name: r.tmpl.Execute(r.conf.IssueType, data)},
+			Summary:  r.tmpl.Execute(r.conf.Summary, data),
 			Unknowns: tcontainer.NewMarshalMap(),
 		},
+	}
+	if r.conf.Description != "" {
+		issue.Fields.Description = r.tmpl.Execute(r.conf.Description, data)
+	}
+	if !r.conf.IgnoreFields.contains("Labels") {
+		issue.Fields.Labels = []string{
+			issueLabel,
+		}
 	}
 	if r.conf.Priority != "" {
 		issue.Fields.Priority = &jira.Priority{Name: r.tmpl.Execute(r.conf.Priority, data)}
